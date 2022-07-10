@@ -1,17 +1,64 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { titleChanged, taskDeleted, completeTask, loadTasks, getTasks, getLoading, createNewTask } from "./store/task";
+import configureStore from './store/store';
+import { Provider, useSelector, useDispatch } from 'react-redux';
+import { getErrors } from './store/errors';
+
+const store = configureStore();
+
+const App = () => {
+  // const [state, setState] = useState(store.getState());
+  const state = useSelector(getTasks());
+  const isLoading = useSelector(getLoading());
+  const error = useSelector(getErrors);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadTasks());
+    // store.subscribe(() => setState(store.getState()))
+  }, [])
+
+  const changeTitle = (taskId) => {
+    dispatch(titleChanged(taskId))
+  }
+  const taskDelete = (taskId) => {
+    dispatch(taskDeleted(taskId))
+  }
+  const createTask = () => {
+    dispatch(createNewTask({title: "New task", completed: false}));
+  }
+  if (isLoading === true) {
+    return <h1>loading</h1>
+  }
+  if (error) {
+    <p>{error}</p>
+  }
+  return (
+    <>
+      <h1>App</h1> 
+      <ul>
+        {state.map(el => 
+          <li key={el.id}>
+            <p>{el.title}</p>
+            <p>{`Completed: ${el.completed}`}</p>
+            <button onClick={() => dispatch(completeTask(el.id))}>Completed</button>
+            <button onClick={() => changeTitle(el.id)}>Change title</button>
+            <button onClick={() => taskDelete(el.id)}>Delete task</button>
+            <hr/>
+          </li>
+        )}
+      </ul>
+      <button onClick={() => createTask()}>Create new task</button>
+      </>
+  )
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
