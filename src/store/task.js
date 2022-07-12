@@ -54,7 +54,7 @@ export const loadTasks = () => async (dispatch) => {
     }
 }
 
-export const completeTask = (id) => (getState, dispatch) => {
+export const completeTask = (id) => (dispatch) => {
     dispatch(update({ id, completed: true }))
 }
 
@@ -65,11 +65,16 @@ export function taskDeleted (id) {
     return remove({ id })
 }
 export const createNewTask = (newTask) => async (dispatch) => {
+    dispatch(taskRequested());
     try {
         const data = await todosService.post(newTask);
         dispatch(create(data));
     } catch (error) {
         dispatch(setError(error.message));
+        dispatch(taskRequestedFailed());
+        if (error) {
+            <p>{error}</p>
+        }
     }
 }
 export const getTasks = () => (state) => state.tasks.entities
