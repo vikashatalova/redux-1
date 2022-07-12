@@ -11,7 +11,7 @@ const App = () => {
   // const [state, setState] = useState(store.getState());
   const state = useSelector(getTasks());
   const isLoading = useSelector(getLoading());
-  const error = useSelector(getErrors);
+  const error = useSelector(getErrors());
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -28,12 +28,13 @@ const App = () => {
   const createTask = () => {
     dispatch(createNewTask({title: "New task", completed: false}));
   }
-  if (isLoading === true) {
+  if (isLoading) {
     return <h1>loading</h1>
   }
   if (error) {
-    <p>{error}</p>
+    return <p>{error}</p>
   }
+  console.log(state);
   return (
     <>
       <h1>App</h1> 
